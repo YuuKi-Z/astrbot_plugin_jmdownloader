@@ -1,0 +1,12 @@
+name: astrbot_plugin_jmdownloader
+display_name: JM 下载器
+desc: 从 NoneBot2 JM 下载器移植，支持搜索、查询、PDF 下载及原配置迁移。
+version: v1.0.0
+author: YuuKi-Z
+repo: https://github.com/YuuKi-Z/astrbot_plugin_jmdownloader
+tags:
+  - 工具
+  - 下载
+support_platforms:
+  - aiocqhttp
+astrbot_version: ">=4.16.0,<5"

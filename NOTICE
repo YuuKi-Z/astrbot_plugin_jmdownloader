@@ -1,0 +1,12 @@
+This is an AstrBot port of nonebot-plugin-jmdownloader 1.0.4.
+Original project: https://github.com/Misty02600/nonebot-plugin-jmdownloader
+Original copyright: Copyright (c) 2025 Misty
+Original license: MIT (see LICENSE).
+
+Command semantics, restriction defaults, and the persistent JSON data structure
+are adapted from that project. NoneBot-specific handlers and scheduling have
+been replaced with AstrBot APIs and asyncio lifecycle management.
+
+JMComic request handling uses the jmcomic library's public client extension
+mechanism to accept UTF-8 BOM-prefixed API responses. The library is a dependency,
+not vendored; its license: https://github.com/hect0x7/JMComic-Crawler-Python/blob/master/LICENSE.

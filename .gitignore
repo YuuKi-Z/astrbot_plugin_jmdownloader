@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+.env*
+*migration-export*.json
+*jmcomic_data*.json
+*_config.json
+backups/
+MIGRATION_REPORT.md
+output/
+.playwright-cli/
+.playwright/
