@@ -16,7 +16,12 @@ from .service import JmService
 from .state import StateStore, atomic_json
 
 COMMAND_PATTERN = re.compile(
-    r"(?i)^/?(?:(jm\s*(?:解除拉黑|设置文件夹|启用群|禁用群|下一页|禁用tag|禁用id|黑名单|下载|查询|搜索|拉黑|帮助|次数))|(开启jm|关闭jm))(?=\s|\d|$)(.*)$"
+    r"(?i)^/?(?:"
+    r"(jm\s*(?:解除拉黑|设置文件夹|启用群|禁用群|禁用tag|禁用id|下载|查询|搜索|拉黑))"
+    r"|(jm\s*(?:下一页|黑名单|帮助|次数)(?=\s|$)"
+    r"|开启\s*jm(?=\s|$)"
+    r"|关闭\s*jm(?=\s|$|确认(?:\s|$))))"
+    r"(.*)$"
 )
 PUBLIC = {"jm下载", "jm查询", "jm搜索", "jm下一页", "jm次数"}
 GLOBAL_ADMIN = {"jm启用群", "jm禁用群", "开启jm", "jm禁用id", "jm禁用tag"}
@@ -27,14 +32,15 @@ jm设置文件夹 <名称> / jm拉黑 @成员 / jm解除拉黑 @成员 / jm黑�
 开启jm / 关闭jm（发送“确认”或使用“关闭jm 确认”）
 超级用户：jm启用群 <群号...> / jm禁用群 <群号...>
 超级用户：jm禁用id <jm号...> / jm禁用tag <标签...>
-命令支持 JM 大写、jm 下一页和 / 前缀。"""
+命令与参数之间可加空格，也可直接连接，例如 jm搜索关键词。
+支持 JM 大写、jm 下一页和 / 前缀；多个群号、ID 或标签之间仍用空格分隔。"""
 
 
 @register(
     "astrbot_plugin_jmdownloader",
     "YuuKi-Z",
     "JM 搜索、查询与 PDF 下载，支持从原插件迁移配置",
-    "1.0.1",
+    "1.0.2",
 )
 class JmDownloaderPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):

@@ -1,7 +1,7 @@
 name: astrbot_plugin_jmdownloader
 display_name: JM 下载器
 desc: 在 QQ 中搜索、查询 JM 内容并下载为 PDF，支持群管理及从原插件迁移配置。
-version: v1.0.1
+version: v1.0.2
 author: YuuKi-Z
 repo: https://github.com/YuuKi-Z/astrbot_plugin_jmdownloader
 tags:

@@ -285,6 +285,76 @@ class PluginTests(unittest.IsolatedAsyncioTestCase):
         await self.run_command("jm设置文件夹 new documents")
         self.assertEqual(self.plugin.store.group("123")["folder_id"], "new-folder")
 
+    async def test_search_accepts_attached_and_spaced_keywords(self):
+        for message, query in [
+            ("jm搜索 若叶睦", "若叶睦"),
+            ("jm搜索若叶睦", "若叶睦"),
+            ("/JM 搜索若叶 睦", "若叶 睦"),
+            ("jm搜索\u3000若叶睦", "若叶睦"),
+            ("jm搜索word word", "word word"),
+        ]:
+            with self.subTest(message=message):
+                self.plugin.service.calls.clear()
+                event = await self.run_command(message)
+                self.assertTrue(event.stopped)
+                self.assertIn(("search", query, 1), self.plugin.service.calls)
+
+    async def test_management_accepts_attached_and_spaced_arguments(self):
+        for separator in ("", " "):
+            with self.subTest(separator=separator):
+                await self.run_command(f"jm启用群{separator}222 333", user="100")
+                self.assertTrue(self.plugin.store.group_enabled("222"))
+                self.assertTrue(self.plugin.store.group_enabled("333"))
+                await self.run_command(f"jm禁用群{separator}222 333", user="100")
+                self.assertFalse(self.plugin.store.group_enabled("222"))
+                self.assertFalse(self.plugin.store.group_enabled("333"))
+                await self.run_command(f"jm禁用tag{separator}测试标签 另一标签", user="100")
+                self.assertTrue(self.plugin.store.blocked("12345", ["测试标签"]))
+                self.assertTrue(self.plugin.store.blocked("12345", ["另一标签"]))
+                await self.run_command(f"jm禁用id{separator}12345 12346", user="100")
+                self.assertTrue(self.plugin.store.blocked("12345"))
+                self.assertTrue(self.plugin.store.blocked("12346"))
+                await self.run_command(f"jm设置文件夹{separator}新 文档", user="100")
+                self.assertEqual(
+                    self.bot.calls[-1],
+                    ("create_group_file_folder", {"group_id": 123, "folder_name": "新 文档"}),
+                )
+
+    async def test_blacklist_accepts_attached_and_spaced_mentions(self):
+        for separator in ("", " "):
+            for command, expected in (("jm拉黑", True), ("jm解除拉黑", False)):
+                with self.subTest(separator=separator, command=command):
+                    event = FakeEvent(f"{command}{separator}@成员", self.bot, user="100")
+                    with patch.object(
+                        event, "get_messages", return_value=[plugin_module.At(qq="789")]
+                    ):
+                        await self.plugin.jm_command(event)
+                    self.assertTrue(event.stopped)
+                    self.assertEqual(self.plugin.store.blacklisted("123", "789"), expected)
+
+    async def test_close_accepts_attached_and_spaced_confirmation(self):
+        for message in ("关闭jm 确认", "关闭jm确认", "关闭 JM确认"):
+            with self.subTest(message=message):
+                self.plugin.store.set_group("123", "enabled", True)
+                event = await self.run_command(message, user="100")
+                self.assertTrue(event.stopped)
+                self.assertFalse(self.plugin.store.group_enabled("123"))
+
+    async def test_attached_jm_prefix_and_invalid_download_arguments(self):
+        for message in ("jm下载JM12345", "jm下载 JM12345"):
+            with self.subTest(message=message):
+                self.plugin.service.calls.clear()
+                await self.run_command(message, user="100")
+                self.assertIn(("download", "12345"), self.plugin.service.calls)
+        self.plugin.service.calls.clear()
+        for message in ("jm下载abcdef", "jm查询 abcdef"):
+            with self.subTest(message=message):
+                event = await self.run_command(message)
+                self.assertTrue(event.stopped)
+                self.assertIn("请输入", event.sent[-1])
+                self.assertEqual(self.plugin.service.calls, [])
+                self.assertEqual(self.plugin.store.remaining("456"), 5)
+
     def test_command_boundaries(self):
         for text in [
             "jm下载 12345",
@@ -292,9 +362,22 @@ class PluginTests(unittest.IsolatedAsyncioTestCase):
             "/jm搜索 word word",
             "jm 下一页",
             "关闭jm 确认",
+            "关闭jm确认",
+            "jm搜索关键字",
+            "jm禁用tag标签",
+            "jm设置文件夹名称",
+            "jm拉黑@成员",
         ]:
             self.assertIsNotNone(plugin_module.COMMAND_PATTERN.fullmatch(text))
-        for text in ["jm下载abcdef", "请问 jm下载 12345", "jm搜索关键字"]:
+        for text in [
+            "请问 jm下载 12345",
+            "jm帮助一下",
+            "jm下一页内容",
+            "jm次数是多少",
+            "jm黑名单成员",
+            "开启jm确认",
+            "关闭jm确认一下",
+        ]:
             self.assertIsNone(plugin_module.COMMAND_PATTERN.fullmatch(text))
 
 
