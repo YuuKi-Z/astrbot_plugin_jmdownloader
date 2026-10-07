@@ -29,7 +29,7 @@ FILES = [
 
 
 def main():
-    destination = ROOT / "dist" / f"{NAME}-1.0.0.zip"
+    destination = ROOT / "dist" / f"{NAME}-1.0.1.zip"
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for name in FILES:

@@ -33,8 +33,8 @@ jm设置文件夹 <名称> / jm拉黑 @成员 / jm解除拉黑 @成员 / jm黑�
 @register(
     "astrbot_plugin_jmdownloader",
     "YuuKi-Z",
-    "JM 下载器，保留 NoneBot2 配置与数据",
-    "1.0.0",
+    "JM 搜索、查询与 PDF 下载，支持从原插件迁移配置",
+    "1.0.1",
 )
 class JmDownloaderPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig):
